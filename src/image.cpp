@@ -43,6 +43,14 @@ const std::vector<Image::Pixel>& Image::pixels() const noexcept {
     return pixels_;
 }
 
+Image::Pixel* Image::data() noexcept {
+    return pixels_.data();
+}
+
+const Image::Pixel* Image::data() const noexcept {
+    return pixels_.data();
+}
+
 Image::Pixel& Image::operator()(int x, int y) {
     return pixels_.at(index(x, y));
 }

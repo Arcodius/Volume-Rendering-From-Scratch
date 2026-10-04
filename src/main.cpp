@@ -1,5 +1,6 @@
 #include "render.h"
 #include "volume.h"
+#include "cuda_renderer.h"
 
 #include <iostream>
 
@@ -7,6 +8,9 @@ int main() {
     constexpr int volumeResolution = 128;
     constexpr int imageWidth = 512;
     constexpr int imageHeight = 512;
+    Image img = renderCudaTest(imageWidth, imageHeight);
+    img.savePNG("cuda_test.png");
+    exit(1);
     std::cout << "正在生成 " << volumeResolution << "x" << volumeResolution << "x"
               << volumeResolution << " 的体积云数据..." << std::endl;
 

@@ -19,6 +19,9 @@ public:
 	bool empty() const noexcept;
 	const std::vector<Pixel>& pixels() const noexcept;
 
+	Pixel* data() noexcept;
+	const Pixel* data() const noexcept;
+
 	Pixel& operator()(int x, int y);
 	const Pixel& operator()(int x, int y) const;
 
