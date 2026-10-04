@@ -7,8 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/*.cu)
 
 add_library(glm INTERFACE)
-# Add your own glm directory
-target_include_directories(glm INTERFACE C:/Users/Tiracolate/library/glm)
+target_include_directories(glm INTERFACE external/glm)
 
 add_executable(VR ${SRC_FILES})
 
