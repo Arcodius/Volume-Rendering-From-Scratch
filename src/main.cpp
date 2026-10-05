@@ -2,40 +2,50 @@
 #include "volume.h"
 #include "cuda_renderer.h"
 
+#include <exception>
 #include <iostream>
 
 int main() {
     constexpr int volumeResolution = 128;
     constexpr int imageWidth = 512;
     constexpr int imageHeight = 512;
-    Image img = renderCudaTest(imageWidth, imageHeight);
-    img.savePNG("cuda_test.png");
-    exit(1);
-    std::cout << "正在生成 " << volumeResolution << "x" << volumeResolution << "x"
-              << volumeResolution << " 的体积云数据..." << std::endl;
+    
+    std::cout << "Generating " << volumeResolution << "x" << volumeResolution << "x"
+              << volumeResolution << " volumetric cloud data..." << std::endl;
 
     VolumeGrid3D cloud = generateCloudVolume(volumeResolution);
 
-    // 统计非空体素
     int activeVoxels = 0;
     for (float val : cloud.data) {
         if (val > 0.01f) activeVoxels++;
     }
 
-    std::cout << "生成完成！" << std::endl;
-    std::cout << "总体素数: " << cloud.data.size() << " (内存占用: "
+    std::cout << "Voxel: " << cloud.data.size() << " (Memory: "
               << (cloud.data.size() * sizeof(float)) / (1024 * 1024) << " MB)" << std::endl;
-    std::cout << "有效云密度体素数: " << activeVoxels << std::endl;
+    std::cout << "Valid voxels: " << activeVoxels << std::endl;
 
-    const Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f),
-                        glm::vec3(0.0f, 1.0f, 0.0f), 45.0f);
-    Image image = renderVolume(cloud, camera, imageWidth, imageHeight);
-    if (!image.savePNG("cloud.png")) {
-        std::cerr << "无法保存渲染结果 cloud.png" << std::endl;
+    // Slicing
+    Image img;
+    try {
+        img = renderCudaSlice(imageWidth, imageHeight, cloud);
+    } catch (const std::exception& error) {
+        std::cerr << "CUDA test render failed: " << error.what() << std::endl;
+        return 1;
+    }
+    if (!img.savePNG("cuda_test.png")) {
+        std::cerr << "Unable to save render result: cuda_test.png" << std::endl;
         return 1;
     }
 
-    std::cout << "渲染完成: cloud.png (" << imageWidth << "x" << imageHeight << ")" << std::endl;
+    // const Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f),
+    //                     glm::vec3(0.0f, 1.0f, 0.0f), 45.0f);
+    // Image image = renderVolume(cloud, camera, imageWidth, imageHeight);
+    // if (!image.savePNG("cloud.png")) {
+    //     std::cerr << "Unable to save render result: cloud.png" << std::endl;
+    //     return 1;
+    // }
+
+    // std::cout << "Render complete: cloud.png (" << imageWidth << "x" << imageHeight << ")" << std::endl;
 
     return 0;
 }
