@@ -48,6 +48,23 @@ __global__ void sliceKernel(const float* input, uint8_t* output, int width, int 
     output[outputIndex] = static_cast<uint8_t>(lroundf(__saturatef(val) * 255.f));
 }
 
+__global__ void renderKernel(const float* input, uint8_t* output, int width, int height, int resolution) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    if (x >= width || y >= height) return;
+
+    int vx = static_cast<int>(floorf(static_cast<float>(x) / width * resolution));
+    int vy = static_cast<int>(floorf(static_cast<float>(y) / height * resolution));
+
+    vx = min(max(vx, 0), resolution - 1);
+    vy = min(max(vy, 0), resolution - 1);
+
+    // input ray
+
+    // intersect and ray march
+    // size_t id = volumeIndex(vx, vy, z, resolution);
+}
+
 Image renderCudaTest(int width, int height) {
     Image image(width, height);
     uint8_t* deviceOutput = nullptr;
